@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -12,6 +13,8 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import ro.pub.cs.systems.eim.practivaltest01var04.service.PracticalTest01Var04Service;
 
 public class PracticalTest01Var04MainActivity extends AppCompatActivity {
 
@@ -22,10 +25,17 @@ public class PracticalTest01Var04MainActivity extends AppCompatActivity {
     private CheckBox checkBoxNume;
     private CheckBox checkBoxGrupa;
     private TextView textViewInfo;
+
+    private IntentFilter intentFilter = new IntentFilter();
+    private MessageBroadcastReceiver messageBroadcastReceiver = new MessageBroadcastReceiver();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_practical_test01_var04_main);
+
+        for (int index = 0; index < Constants.actionTypes.length; index++) {
+            intentFilter.addAction(Constants.actionTypes[index]);
+        }
 
         navigateToSecondaryActivityButton = (Button)findViewById(R.id.navigateToSecondaryActivityButton);
         displayInfoButton = (Button)findViewById(R.id.displayInformationsButton);
@@ -64,6 +74,19 @@ public class PracticalTest01Var04MainActivity extends AppCompatActivity {
             intent.putExtra("grupa", grupa);
             startActivityForResult(intent, Constants.SECONDARY_ACTIVITY_REQUEST_CODE);
         });
+
+        displayInfoButton.setOnClickListener(v -> {
+            String nume = editTextNume.getText().toString();
+            String grupa = editTextGrupa.getText().toString();
+            if ("".equals(nume) || "".equals(grupa)) {
+                Toast.makeText(this, "Ambele camputi trebuiesc completate", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Intent intent = new Intent(this, PracticalTest01Var04Service.class);
+            intent.putExtra("nume", nume);
+            intent.putExtra("grupa", grupa);
+            startService(intent);
+        });
     }
 
     @Override
@@ -93,5 +116,19 @@ public class PracticalTest01Var04MainActivity extends AppCompatActivity {
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    protected void onDestroy() {
+        Intent intent = new Intent(this, PracticalTest01Var04Service.class);
+        stopService(intent);
+        super.onDestroy();
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(messageBroadcastReceiver, intentFilter);
     }
 }
