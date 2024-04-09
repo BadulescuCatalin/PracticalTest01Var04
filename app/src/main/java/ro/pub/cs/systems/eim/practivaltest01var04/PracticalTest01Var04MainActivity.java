@@ -1,8 +1,10 @@
 package ro.pub.cs.systems.eim.practivaltest01var04;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -54,6 +56,14 @@ public class PracticalTest01Var04MainActivity extends AppCompatActivity {
 
         });
 
+        navigateToSecondaryActivityButton.setOnClickListener(v -> {
+            String nume = editTextNume.getText().toString();
+            String grupa = editTextGrupa.getText().toString();
+            Intent intent = new Intent(getApplicationContext(), PracticalTest01Var04SecondaryActivity.class);
+            intent.putExtra("nume", nume);
+            intent.putExtra("grupa", grupa);
+            startActivityForResult(intent, Constants.SECONDARY_ACTIVITY_REQUEST_CODE);
+        });
     }
 
     @Override
@@ -70,5 +80,18 @@ public class PracticalTest01Var04MainActivity extends AppCompatActivity {
         if (savedInstanceState.containsKey("grupa"))
             editTextGrupa.setText(savedInstanceState.getString("grupa"));
         super.onRestoreInstanceState(savedInstanceState);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == Constants.SECONDARY_ACTIVITY_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Toast.makeText(this, "OK", Toast.LENGTH_SHORT).show();
+            }
+            if (resultCode == RESULT_CANCELED) {
+                Toast.makeText(this, "CANCEL", Toast.LENGTH_SHORT).show();
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }
